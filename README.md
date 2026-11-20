@@ -65,6 +65,23 @@ w = baadcb
   Use symbols from the alphabet with no spaces between them. A bare `w =` or
   `u =` represents the empty word.
 
+### Parsed Input
+
+`InputParser.parse(...)` returns a `TraceInput` record.
+
+- `alphabet()` returns a `List<Transaction>` in declaration order, including
+  transactions whose symbols do not appear in the word.
+- `word()` returns a `List<Occurrence>` in word order. Each occurrence has a
+  one-based `position()` and a `transaction()`. In the sample, `a[2]` and `a[3]`
+  refer to separate occurrences of the same transaction.
+
+In `Executor.foataClasses`, use `input.alphabet()` for the declared alphabet.
+The `operations` argument contains one `TransactionOperation` per occurrence
+in word order.
+Use `operation.occurrence().transaction()` to get its `Transaction`. The
+methods `symbol()`, `reads()`, and `writes()` give its alphabet symbol and the
+sets of variables it reads and writes.
+
 ## Example Output
 
 Running the starter with the sample input produces this output.
@@ -132,9 +149,7 @@ Remove Maven build outputs with `mvn clean`.
 Complete the two methods in `Executor` during the 90-minute lab.
 
 1. `foataClasses` computes the Foata classes from the declared alphabet and
-   the occurrences in the input word. Use `operation.occurrence().transaction()`
-   to access the transaction. Its `reads()` and `writes()` methods return the
-   sets of variables it reads and writes.
+   the occurrences in the input word.
 2. `runClasses` passes each class to `BlockRunner.runBlock` in order. Execute
    each occurrence exactly once. Start the next class after all operations in
    the previous class have finished.
