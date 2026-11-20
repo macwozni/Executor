@@ -1,22 +1,48 @@
 # Executor
 
-Projekt startowy do 90-minutowego ćwiczenia z teorii śladów. Program czyta dane
-ze standardowego wejścia i wypisuje alfabet oraz pozycje wystąpień w słowie.
+`Executor` is a small Java teaching project for trace theory and concurrent
+execution of transactions. It provides a starter for grouping occurrences
+into Foata classes and running each class as a block.
 
-## Budowanie i uruchamianie
+## Requirements
 
-Użyj **JDK 26** i Mavena **3.9 lub nowszego**. Sprawdź w `mvn -version`, czy
-Maven korzysta z JDK 26. Runner korzysta z wątków wirtualnych i podglądowego
-API `StructuredTaskScope`. Maven włącza preview przy kompilacji i testach.
+- JDK 26, for example OpenJDK 26
+- Maven 3.9 or newer
+
+The block runner uses virtual threads and `StructuredTaskScope`, a preview
+API in JDK 26. Maven enables preview features for compilation and tests.
+
+Check the installed Java and Maven versions.
+
+```bash
+java -version
+javac -version
+mvn -version
+```
+
+## Quick Start With Maven
+
+Build the project and run its tests.
 
 ```bash
 mvn clean verify
+```
+
+Run the generated JAR with the supplied sample input.
+
+```bash
 java --enable-preview -jar target/executor-1.0-SNAPSHOT.jar < src/test/resources/dane1.txt
 ```
 
-## Wejście
+## What The Program Does
 
-Przykładowe dane wejściowe w formacie tekstowym UTF-8.
+The starter reads an alphabet, a set of transactions, and a word from standard
+input. It prints the alphabet and labels each occurrence with its position in
+the word, starting at 1. The two `TODO` messages mark the methods to complete.
+
+## Example Input
+
+Use UTF-8 text. The sample file contains the following data.
 
 ```text
 A = {a, b, c, d}
@@ -27,33 +53,90 @@ d: z := y - z
 w = baadcb
 ```
 
-- Pierwszy wiersz deklaruje alfabet. Każdy symbol to jedna litera `A–Z` lub
-  `a–z`. Definicje transakcji mają po jednym wierszu w dowolnej kolejności
-  między alfabetem a słowem. Każdy symbol ma dokładnie jedną definicję.
-- Przypisanie zapisuje do jednej zmiennej. Nazwy zmiennych zaczynają się od
-  litery ASCII i mogą zawierać cyfry oraz `_`. Prawa strona jest sumą lub
-  różnicą liczb całkowitych i zmiennych z ewentualnymi współczynnikami,
-  np. `3x`. Można użyć `:=`, `←`, `<-` lub `=` jako znaku przypisania.
-- Wiersz `w = ...` albo `u = ...` zawiera słowo bez odstępów wewnątrz. Samo
-  `w =` oznacza słowo puste. Pusty alfabet zapisuje się jako `A = {}`.
-  Puste wiersze są pomijane.
+- The first nonblank line declares the alphabet. Each symbol is a single
+  ASCII letter and appears once in the declaration. Use `A = {}` for an empty
+  alphabet.
+- The following lines define one transaction per symbol, in any order. Each
+  transaction assigns a value to one variable. Variable names start with an
+  ASCII letter and can contain only ASCII letters, digits, and underscores.
+  The right-hand side can add or subtract integers and variables with integer
+  coefficients such as `2z`. The assignment operator can be `:=`, `←`, `<-`, or `=`.
+- The last nonblank line starts with `w =` or `u =` and contains the word.
+  Use symbols from the alphabet with no spaces between them. A bare `w =` or
+  `u =` represents the empty word.
 
-## Gotowe elementy i TODO
+## Example Output
 
-- `InputParser` waliduje wejście. `TraceInput` zachowuje kolejność deklaracji
-  alfabetu i wszystkie wystąpienia w słowie. `Transaction.reads()` zwraca
-  zbiór odczytywanych zmiennych z prawej strony, a `writes()` zwraca zbiór
-  zawierający zmienną docelową.
-- `TransactionOperation` wykonuje przypisanie na współdzielonych liczbach
-  całkowitych. Każda zmienna ma na początku wartość `0`. `AbstractOperation`
-  dodaje opóźnienie 10–19 ms i drukuje po sukcesie oznaczenie takie jak
-  `a[2]`, gdzie liczba to pozycja w słowie liczona od 1.
-- `ConcurrentBlockRunner` zgłasza cały blok do `StructuredTaskScope`, zwalnia
-  bramkę startową i czeka na zakończenie. Błąd lub przerwanie zatrzymuje blok
-  i jest przekazywane do wywołującego po zamknięciu zakresu.
-- W `Executor` uzupełnij `foataClasses` i `runClasses`. Pierwsza metoda
-  wyznacza klasy w kolejności wykonania. Dane transakcji są dostępne przez
-  `operation.occurrence().transaction()`. Druga metoda przekazuje klasy kolejno
-  do `BlockRunner.runBlock`. Klasa może ruszyć po zakończeniu poprzedniej.
+Running the starter with the sample input produces this output.
 
-Podział klas i mechanizm runnera pochodzą z [1DMeshParallel](https://github.com/macwozni/1DMeshParallel/tree/359d963a935e97240d1454c30870dd8c47fffaaf).
+```text
+Alfabet: a b c d
+Słowo: b[1] a[2] a[3] d[4] c[5] b[6]
+TODO: wyznaczenie klas Foaty
+TODO: wykonanie kolejnych klas
+```
+
+## Project Structure
+
+```text
+.
+|-- pom.xml
+`-- src
+    |-- main/java/pl/edu/agh/macwozni/executor
+    |   |-- Application.java
+    |   |-- Executor.java
+    |   |-- input
+    |   |-- model
+    |   |-- operation
+    |   `-- parallelism
+    `-- test/resources/dane1.txt
+```
+
+- `pl.edu.agh.macwozni.executor` contains the application entry point and the
+  code that coordinates execution.
+- `input` parses and validates the input.
+- `model` represents transactions, the declared alphabet, and the occurrences
+  in the word.
+- `operation` implements runnable operations and variable assignments.
+- `parallelism` contains the block runner.
+
+## Execution Model
+
+`BlockRunner.runBlock` receives a block of independent operations.
+`ConcurrentBlockRunner` starts one virtual thread per operation through
+`StructuredTaskScope`. A `CountDownLatch` holds the tasks until the entire
+block has been submitted. The runner waits for the block to finish and
+propagates failures or interruptions to the caller after the scope closes.
+
+Transactions use shared integer variables with an initial value of `0`.
+`AbstractOperation` adds a delay of 10–19 ms and prints a label such as `a[2]`
+after the operation succeeds.
+
+## Build Artifacts
+
+Maven creates the runnable JAR at `target/executor-1.0-SNAPSHOT.jar`.
+
+## Cleaning
+
+Remove Maven build outputs with `mvn clean`.
+
+## Troubleshooting
+
+- If Maven reports a Java version error, set `JAVA_HOME` to the JDK 26
+  installation and check `mvn -version`.
+- If the JVM reports a preview feature error, pass `--enable-preview` before
+  `-jar` as shown in the quick start.
+
+## Usage
+
+Complete the two methods in `Executor` during the 90-minute lab.
+
+1. `foataClasses` computes the Foata classes from the declared alphabet and
+   the occurrences in the input word. Use `operation.occurrence().transaction()`
+   to access the transaction. Its `reads()` and `writes()` methods return the
+   sets of variables it reads and writes.
+2. `runClasses` passes each class to `BlockRunner.runBlock` in order. Execute
+   each occurrence exactly once. Start the next class after all operations in
+   the previous class have finished.
+
+The project layout and block runner are based on [1DMeshParallel](https://github.com/macwozni/1DMeshParallel/tree/359d963a935e97240d1454c30870dd8c47fffaaf).
