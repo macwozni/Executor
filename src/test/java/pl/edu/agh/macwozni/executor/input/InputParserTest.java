@@ -98,18 +98,18 @@ class InputParserTest {
 
     private static List<Arguments> invalidInputs() {
         return List.of(
-                Arguments.of("", "Brak deklaracji alfabetu"),
-                Arguments.of("A = {a}", "Brak ostatniego wiersza"),
-                Arguments.of("A = {a, a}\nw = a", "Powtórzony symbol alfabetu"),
-                Arguments.of("A = {a,}\nw = a", "pojedynczą literą"),
-                Arguments.of("A = {a}\na: x := 1\na: x := 2\nw = a", "Powtórzona definicja"),
-                Arguments.of("A = {a}\nb: x := 1\nw = a", "Symbol spoza alfabetu: b"),
-                Arguments.of("A = {a, b}\na: x := 1\nw = a", "Brak definicji transakcji: b"),
-                Arguments.of("A = {a}\na: x := 1\nw = ab", "na pozycji 2: b"),
-                Arguments.of("A = {a}\na: x := x y\nw = a", "prawa strona przypisania"),
-                Arguments.of("A = {a}\na: x := x +\nw = a", "prawa strona przypisania"),
-                Arguments.of("A = {a}\na: x :=\nw = a", "prawa strona przypisania"),
-                Arguments.of("A = {a}\na: x := 1\nw = a a", "bez odstępów"));
+                Arguments.of("", "Missing alphabet declaration"),
+                Arguments.of("A = {a}", "Missing final line"),
+                Arguments.of("A = {a, a}\nw = a", "Duplicate alphabet symbol"),
+                Arguments.of("A = {a,}\nw = a", "single letter"),
+                Arguments.of("A = {a}\na: x := 1\na: x := 2\nw = a", "Duplicate transaction definition"),
+                Arguments.of("A = {a}\nb: x := 1\nw = a", "Symbol outside the alphabet: b"),
+                Arguments.of("A = {a, b}\na: x := 1\nw = a", "Missing transaction definitions: b"),
+                Arguments.of("A = {a}\na: x := 1\nw = ab", "Line 3. Symbol outside the alphabet at position 2: b"),
+                Arguments.of("A = {a}\na: x := x y\nw = a", "Invalid right-hand side of assignment"),
+                Arguments.of("A = {a}\na: x := x +\nw = a", "Invalid right-hand side of assignment"),
+                Arguments.of("A = {a}\na: x :=\nw = a", "Invalid right-hand side of assignment"),
+                Arguments.of("A = {a}\na: x := 1\nw = a a", "no spaces between letters"));
     }
 
     private TraceInput parse(String source) throws Exception {

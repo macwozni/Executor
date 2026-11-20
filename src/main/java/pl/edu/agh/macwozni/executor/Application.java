@@ -19,19 +19,19 @@ public final class Application {
         try {
             input = new InputParser().parse(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         } catch (InputFormatException exception) {
-            System.err.println("Błąd wejścia. " + exception.getMessage());
+            System.err.println("Input error. " + exception.getMessage());
             System.exit(1);
             return;
         } catch (IOException exception) {
-            System.err.println("Błąd odczytu wejścia. " + exception.getMessage());
+            System.err.println("Could not read input. " + exception.getMessage());
             System.exit(1);
             return;
         }
 
         String alphabet = input.alphabet().stream().map(Transaction::symbol).collect(Collectors.joining(" "));
         String word = input.word().stream().map(Occurrence::label).collect(Collectors.joining(" "));
-        System.out.println("Alfabet: " + alphabet);
-        System.out.println("Słowo: " + word);
+        System.out.println("Alphabet: " + alphabet);
+        System.out.println("Word: " + word);
         new Executor(new ConcurrentBlockRunner(), input).run();
     }
 }

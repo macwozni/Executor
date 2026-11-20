@@ -24,9 +24,9 @@ public class ConcurrentBlockRunner extends AbstractBlockRunner {
             scope.join();
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Przerwano wykonanie bloku", exception);
+            throw new IllegalStateException("Block execution interrupted", exception);
         } catch (StructuredTaskScope.FailedException exception) {
-            throw new IllegalStateException("Operacja w bloku zakończyła się błędem", exception.getCause());
+            throw new IllegalStateException("An operation in the block failed", exception.getCause());
         }
     }
 }

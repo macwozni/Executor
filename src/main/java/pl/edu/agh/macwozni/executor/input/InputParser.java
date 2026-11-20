@@ -30,11 +30,11 @@ public final class InputParser {
     public TraceInput parse(Reader reader) throws IOException, InputFormatException {
         List<Line> lines = readNonBlankLines(reader);
         if (lines.isEmpty()) {
-            throw new InputFormatException("Brak deklaracji alfabetu A.");
+            throw new InputFormatException("Missing alphabet declaration A.");
         }
         Set<String> symbols = parseAlphabet(lines.getFirst());
         if (lines.size() == 1) {
-            throw new InputFormatException("Brak ostatniego wiersza ze słowem w lub u.");
+            throw new InputFormatException("Missing final line declaring the word w or u.");
         }
 
         var transactions = new HashMap<String, Transaction>();
@@ -42,21 +42,21 @@ public final class InputParser {
             Transaction transaction = parseAssignment(line);
             String symbol = transaction.symbol();
             if (!symbols.contains(symbol)) {
-                throw line.error("Symbol spoza alfabetu: " + symbol);
+                throw line.error("Symbol outside the alphabet: " + symbol);
             }
             if (transactions.putIfAbsent(symbol, transaction) != null) {
-                throw line.error("Powtórzona definicja transakcji: " + symbol);
+                throw line.error("Duplicate transaction definition: " + symbol);
             }
         }
 
         Line wordLine = lines.getLast();
         var word = WORD.matcher(wordLine.text());
         if (!word.matches()) {
-            throw wordLine.error("Oczekiwano słowa w = ... lub u = ... złożonego z liter bez odstępów.");
+            throw wordLine.error("Expected w = ... or u = ... with no spaces between letters.");
         }
         List<String> missing = symbols.stream().filter(symbol -> !transactions.containsKey(symbol)).toList();
         if (!missing.isEmpty()) {
-            throw wordLine.error("Brak definicji transakcji: " + String.join(", ", missing));
+            throw wordLine.error("Missing transaction definitions: " + String.join(", ", missing));
         }
 
         String letters = word.group(1);
@@ -65,7 +65,7 @@ public final class InputParser {
             String symbol = String.valueOf(letters.charAt(index));
             Transaction transaction = transactions.get(symbol);
             if (transaction == null) {
-                throw wordLine.error("Symbol spoza alfabetu na pozycji " + (index + 1) + ": " + symbol);
+                throw wordLine.error("Symbol outside the alphabet at position " + (index + 1) + ": " + symbol);
             }
             occurrences.add(new Occurrence(index + 1, transaction));
         }
@@ -89,17 +89,17 @@ public final class InputParser {
     private static Set<String> parseAlphabet(Line line) throws InputFormatException {
         var alphabet = ALPHABET.matcher(line.text());
         if (!alphabet.matches()) {
-            throw line.error("Oczekiwano deklaracji alfabetu w formacie A = {a, b, ...}.");
+            throw line.error("Expected an alphabet declaration in the form A = {a, b, ...}.");
         }
         var symbols = new LinkedHashSet<String>();
         if (!alphabet.group(1).isBlank()) {
             for (String entry : alphabet.group(1).split(",", -1)) {
                 String symbol = entry.strip();
                 if (!SYMBOL.matcher(symbol).matches()) {
-                    throw line.error("Symbol alfabetu musi być pojedynczą literą A–Z lub a–z.");
+                    throw line.error("An alphabet symbol must be a single letter from A to Z or a to z.");
                 }
                 if (!symbols.add(symbol)) {
-                    throw line.error("Powtórzony symbol alfabetu: " + symbol);
+                    throw line.error("Duplicate alphabet symbol: " + symbol);
                 }
             }
         }
@@ -109,7 +109,7 @@ public final class InputParser {
     private static Transaction parseAssignment(Line line) throws InputFormatException {
         var assignment = ASSIGNMENT.matcher(line.text());
         if (!assignment.matches()) {
-            throw line.error("Oczekiwano definicji transakcji, np. a: x := x + y.");
+            throw line.error("Expected a transaction definition such as a: x := x + y.");
         }
 
         String expression = assignment.group(3).replace('−', '-').replace('–', '-');
@@ -117,7 +117,7 @@ public final class InputParser {
         for (String part : expression.split("(?=[+-])")) {
             var term = TERM.matcher(part.strip());
             if (!term.matches() || (term.group("coefficient").isEmpty() && term.group("variable") == null)) {
-                throw line.error("Niepoprawna prawa strona przypisania: „" + assignment.group(3) + "”.");
+                throw line.error("Invalid right-hand side of assignment: \"" + assignment.group(3) + "\".");
             }
             String digits = term.group("coefficient");
             BigInteger coefficient = digits.isEmpty() ? BigInteger.ONE : new BigInteger(digits);
@@ -131,7 +131,7 @@ public final class InputParser {
 
     private record Line(int number, String text) {
         private InputFormatException error(String message) {
-            return new InputFormatException("Wiersz " + number + ". " + message);
+            return new InputFormatException("Line " + number + ". " + message);
         }
     }
 }

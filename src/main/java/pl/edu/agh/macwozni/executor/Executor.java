@@ -27,13 +27,13 @@ public final class Executor implements Runnable {
     }
 
     private List<List<TransactionOperation>> foataClasses(List<TransactionOperation> operations) {
-        // TODO: Wyznacz klasy Foaty dla operacji w kolejności słowa wejściowego.
-        System.out.println("TODO: wyznaczenie klas Foaty");
+        // TODO: Compute the Foata classes from the operations in input word order.
+        System.out.println("TODO: Compute Foata classes");
         return List.of();
     }
 
     private void runClasses(List<List<TransactionOperation>> classes, BlockRunner runner) {
-        // TODO: Przekaż kolejne klasy do runner.runBlock, zachowując ich kolejność.
-        System.out.println("TODO: wykonanie kolejnych klas");
+        // TODO: Pass the classes to runner.runBlock in order.
+        System.out.println("TODO: Run the classes in order");
     }
 }

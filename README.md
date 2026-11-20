@@ -70,10 +70,10 @@ w = baadcb
 Running the starter with the sample input produces this output.
 
 ```text
-Alfabet: a b c d
-Słowo: b[1] a[2] a[3] d[4] c[5] b[6]
-TODO: wyznaczenie klas Foaty
-TODO: wykonanie kolejnych klas
+Alphabet: a b c d
+Word: b[1] a[2] a[3] d[4] c[5] b[6]
+TODO: Compute Foata classes
+TODO: Run the classes in order
 ```
 
 ## Project Structure

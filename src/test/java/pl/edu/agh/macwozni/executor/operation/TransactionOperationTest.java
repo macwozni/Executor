@@ -33,7 +33,7 @@ class TransactionOperationTest {
         }
 
         assertEquals(BigInteger.valueOf(5), variables.get("x"));
-        assertEquals(List.of("Wykonano a[2]"), output.toString(StandardCharsets.UTF_8).lines().toList());
+        assertEquals(List.of("Executed a[2]"), output.toString(StandardCharsets.UTF_8).lines().toList());
     }
 
     @Test

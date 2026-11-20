@@ -15,10 +15,10 @@ public abstract class AbstractOperation implements Operation {
             Thread.sleep(ThreadLocalRandom.current().nextInt(10, 20));
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Przerwano operację " + label, exception);
+            throw new IllegalStateException("Operation interrupted: " + label, exception);
         }
 
         execute();
-        System.out.println("Wykonano " + label);
+        System.out.println("Executed " + label);
     }
 }
