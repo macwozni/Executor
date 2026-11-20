@@ -7,15 +7,37 @@ into Foata classes and running each class as a block.
 ## Requirements
 
 - JDK 17, for example OpenJDK 17
-- Maven 3.9 or newer
+- Maven 3.9 or newer for the Maven build
 
-Check the installed Java and Maven versions.
+The repository includes the Gradle Wrapper. Check the installed Java version.
 
 ```bash
 java -version
 javac -version
-mvn -version
 ```
+
+## Quick Start With Gradle
+
+Build the project and run its tests with the wrapper.
+
+```bash
+./gradlew clean build
+```
+
+Run the application with the sample input.
+
+```bash
+./gradlew --quiet run < src/test/resources/dane1.txt
+```
+
+Run the generated JAR directly with `java`.
+
+```bash
+java -jar build/libs/executor-1.0-SNAPSHOT.jar < src/test/resources/dane1.txt
+```
+
+On Windows, run the examples from Command Prompt and use `gradlew.bat` for
+the wrapper commands.
 
 ## Quick Start With Maven
 
@@ -97,7 +119,12 @@ TODO: Pass the computed classes to runClasses
 
 ```text
 .
+|-- build.gradle
+|-- gradle/wrapper
+|-- gradlew
+|-- gradlew.bat
 |-- pom.xml
+|-- settings.gradle
 `-- src
     |-- main/java/pl/edu/agh/macwozni/executor
     |   |-- Application.java
@@ -135,16 +162,17 @@ after the operation succeeds.
 
 ## Build Artifacts
 
-Maven creates the runnable JAR at `target/executor-1.0-SNAPSHOT.jar`.
+- Gradle creates `build/libs/executor-1.0-SNAPSHOT.jar`.
+- Maven creates `target/executor-1.0-SNAPSHOT.jar`.
 
 ## Cleaning
 
-Remove Maven build outputs with `mvn clean`.
+Remove build outputs with `./gradlew clean` or `mvn clean`.
 
 ## Troubleshooting
 
-If Maven reports a Java version error, set `JAVA_HOME` to the JDK 17
-installation and check `mvn -version`.
+If a build reports a Java version error, set `JAVA_HOME` to the JDK 17
+installation and check `./gradlew --version` or `mvn -version`.
 
 ## Usage
 
