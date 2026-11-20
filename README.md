@@ -38,7 +38,9 @@ java --enable-preview -jar target/executor-1.0-SNAPSHOT.jar < src/test/resources
 
 The starter reads an alphabet, a set of transactions, and a word from standard
 input. It prints the alphabet and labels each occurrence with its position in
-the word, starting at 1. The two `TODO` messages mark the methods to complete.
+the word, starting at 1. It also prints the classes returned by `foataClasses`,
+which starts out returning an empty list. The two `TODO` messages mark class
+computation and the call that executes the computed classes.
 
 ## Example Input
 
@@ -90,7 +92,8 @@ Running the starter with the sample input produces this output.
 Alphabet: a b c d
 Word: b[1] a[2] a[3] d[4] c[5] b[6]
 TODO: Compute Foata classes
-TODO: Run the classes in order
+FNF: []
+TODO: Pass the computed classes to runClasses
 ```
 
 ## Project Structure
@@ -124,6 +127,8 @@ TODO: Run the classes in order
 `StructuredTaskScope`. A `CountDownLatch` holds the tasks until the entire
 block has been submitted. The runner waits for the block to finish and
 propagates failures or interruptions to the caller after the scope closes.
+The supplied `Executor.runClasses` calls the runner once per class and waits
+for each call to return before starting the next class.
 
 Transactions use shared integer variables with an initial value of `0`.
 `AbstractOperation` adds a delay of 10–19 ms and prints a label such as `a[2]`
@@ -146,12 +151,11 @@ Remove Maven build outputs with `mvn clean`.
 
 ## Usage
 
-Complete the two methods in `Executor` during the 90-minute lab.
+Complete the two `TODO`s in `Executor` during the 90-minute lab.
 
-1. `foataClasses` computes the Foata classes from the declared alphabet and
-   the occurrences in the input word.
-2. `runClasses` passes each class to `BlockRunner.runBlock` in order. Execute
-   each occurrence exactly once. Start the next class after all operations in
-   the previous class have finished.
+1. Implement `foataClasses` to compute the Foata classes from the declared
+   alphabet and the occurrences in the input word.
+2. In `run()`, pass the computed classes to the supplied `runClasses` method.
+   Each occurrence must execute exactly once.
 
 The project layout and block runner are based on [1DMeshParallel](https://github.com/macwozni/1DMeshParallel/tree/359d963a935e97240d1454c30870dd8c47fffaaf).

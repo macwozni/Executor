@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import pl.edu.agh.macwozni.executor.model.TraceInput;
 import pl.edu.agh.macwozni.executor.operation.TransactionOperation;
 import pl.edu.agh.macwozni.executor.parallelism.BlockRunner;
@@ -23,7 +24,16 @@ public final class Executor implements Runnable {
         var operations = input.word().stream()
                 .map(occurrence -> new TransactionOperation(occurrence, variables))
                 .toList();
-        runClasses(foataClasses(operations), runner);
+        var classes = foataClasses(operations);
+        String foata = classes.stream()
+                .map(block -> block.stream()
+                        .map(operation -> operation.occurrence().label())
+                        .collect(Collectors.joining(" ", "(", ")")))
+                .collect(Collectors.joining(" ", "[", "]"));
+        System.out.println("FNF: " + foata);
+
+        // TODO: Pass the computed classes to runClasses.
+        System.out.println("TODO: Pass the computed classes to runClasses");
     }
 
     private List<List<TransactionOperation>> foataClasses(List<TransactionOperation> operations) {
@@ -33,7 +43,8 @@ public final class Executor implements Runnable {
     }
 
     private void runClasses(List<List<TransactionOperation>> classes, BlockRunner runner) {
-        // TODO: Pass the classes to runner.runBlock in order.
-        System.out.println("TODO: Run the classes in order");
+        for (var block : classes) {
+            runner.runBlock(block);
+        }
     }
 }
