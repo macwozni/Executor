@@ -24,8 +24,8 @@ class InputParserTest {
     private final InputParser parser = new InputParser();
 
     @Test
-    void parsesCw5TaskOne() throws Exception {
-        try (var reader = new InputStreamReader(getClass().getResourceAsStream("/cw5-zadanie1.txt"),
+    void parsesSampleInput() throws Exception {
+        try (var reader = new InputStreamReader(getClass().getResourceAsStream("/dane1.txt"),
                 StandardCharsets.UTF_8)) {
             TraceInput input = parser.parse(reader);
             assertEquals(List.of("a", "b", "c", "d"), symbols(input));
@@ -39,7 +39,7 @@ class InputParserTest {
     }
 
     @Test
-    void parsesCw5TaskTwo() throws Exception {
+    void parsesArrowAssignmentsAndRepeatedSymbols() throws Exception {
         TraceInput input = parse("""
                 A = {a, b, c, d, e, f}
                 a: x ← y + z
@@ -57,7 +57,7 @@ class InputParserTest {
     }
 
     @Test
-    void parsesCw5HomeworkSecondExample() throws Exception {
+    void parsesConstantsAndAssignmentVariants() throws Exception {
         TraceInput input = parse("""
                 A = {a, b, c, d, e, f}
                 a: x := x + 1

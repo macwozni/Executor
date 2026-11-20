@@ -11,12 +11,12 @@ API `StructuredTaskScope`. Maven włącza preview przy kompilacji i testach.
 
 ```bash
 mvn clean verify
-java --enable-preview -jar target/executor-1.0-SNAPSHOT.jar < src/test/resources/cw5-zadanie1.txt
+java --enable-preview -jar target/executor-1.0-SNAPSHOT.jar < src/test/resources/dane1.txt
 ```
 
 ## Wejście
 
-Pierwsze zadanie z CW5 w formacie tekstowym UTF-8.
+Przykładowe dane wejściowe w formacie tekstowym UTF-8.
 
 ```text
 A = {a, b, c, d}
@@ -42,8 +42,8 @@ w = baadcb
 
 - `InputParser` waliduje wejście. `TraceInput` zachowuje kolejność deklaracji
   alfabetu i wszystkie wystąpienia w słowie. `Transaction.reads()` zwraca
-  zmienne z prawej strony, a `writes()` zwraca zmienną docelową. Są to zbiory
-  odczytu i zapisu używane w aktualnych materiałach CW10 i Z06.
+  zbiór odczytywanych zmiennych z prawej strony, a `writes()` zwraca zbiór
+  zawierający zmienną docelową.
 - `TransactionOperation` wykonuje przypisanie na współdzielonych liczbach
   całkowitych. Każda zmienna ma na początku wartość `0`. `AbstractOperation`
   dodaje opóźnienie 10–19 ms i drukuje po sukcesie oznaczenie takie jak

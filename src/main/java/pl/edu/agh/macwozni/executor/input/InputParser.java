@@ -16,7 +16,7 @@ import pl.edu.agh.macwozni.executor.model.TraceInput;
 import pl.edu.agh.macwozni.executor.model.Transaction;
 import pl.edu.agh.macwozni.executor.model.Transaction.Term;
 
-/** Parses the line-oriented transcription of the CW5 examples. */
+/** Parses an alphabet, assignments, and a word from text input. */
 public final class InputParser {
     private static final String IDENTIFIER = "[A-Za-z][A-Za-z0-9_]*";
     private static final Pattern SYMBOL = Pattern.compile("[A-Za-z]");

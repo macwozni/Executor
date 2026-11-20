@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** An assignment from CW5. Every term is an integer or a scaled variable. */
+/** An assignment to a single variable. Every term is an integer or a scaled variable. */
 public record Transaction(String symbol, String target, List<Term> terms) {
     public Transaction {
         terms = List.copyOf(terms);
