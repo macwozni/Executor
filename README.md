@@ -6,11 +6,8 @@ into Foata classes and running each class as a block.
 
 ## Requirements
 
-- JDK 26, for example OpenJDK 26
+- JDK 17, for example OpenJDK 17
 - Maven 3.9 or newer
-
-The block runner uses virtual threads and `StructuredTaskScope`, a preview
-API in JDK 26. Maven enables preview features for compilation and tests.
 
 Check the installed Java and Maven versions.
 
@@ -31,7 +28,7 @@ mvn clean verify
 Run the generated JAR with the supplied sample input.
 
 ```bash
-java --enable-preview -jar target/executor-1.0-SNAPSHOT.jar < src/test/resources/dane1.txt
+java -jar target/executor-1.0-SNAPSHOT.jar < src/test/resources/dane1.txt
 ```
 
 ## What The Program Does
@@ -123,10 +120,12 @@ TODO: Pass the computed classes to runClasses
 ## Execution Model
 
 `BlockRunner.runBlock` receives a block of independent operations.
-`ConcurrentBlockRunner` starts one virtual thread per operation through
-`StructuredTaskScope`. A `CountDownLatch` holds the tasks until the entire
-block has been submitted. The runner waits for the block to finish and
-propagates failures or interruptions to the caller after the scope closes.
+`ConcurrentBlockRunner` creates an `ExecutorService` with up to eight platform
+threads per block. Additional operations wait in the queue. It collects
+completed tasks through `ExecutorCompletionService` and waits for the whole
+block to finish. If an operation fails or the caller is interrupted, the runner
+cancels outstanding work and waits for the pool to terminate before reporting
+the failure or interruption.
 The supplied `Executor.runClasses` calls the runner once per class and waits
 for each call to return before starting the next class.
 
@@ -144,10 +143,8 @@ Remove Maven build outputs with `mvn clean`.
 
 ## Troubleshooting
 
-- If Maven reports a Java version error, set `JAVA_HOME` to the JDK 26
-  installation and check `mvn -version`.
-- If the JVM reports a preview feature error, pass `--enable-preview` before
-  `-jar` as shown in the quick start.
+If Maven reports a Java version error, set `JAVA_HOME` to the JDK 17
+installation and check `mvn -version`.
 
 ## Usage
 

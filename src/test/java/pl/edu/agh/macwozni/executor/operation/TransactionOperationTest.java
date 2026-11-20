@@ -58,6 +58,6 @@ class TransactionOperationTest {
                 a: x := 3x - y + 2
                 w = aa
                 """));
-        return new TransactionOperation(input.word().getLast(), variables);
+        return new TransactionOperation(input.word().get(1), variables);
     }
 }

@@ -30,11 +30,11 @@ class InputParserTest {
             TraceInput input = parser.parse(reader);
             assertEquals(List.of("a", "b", "c", "d"), symbols(input));
             assertEquals(List.of("b[1]", "a[2]", "a[3]", "d[4]", "c[5]", "b[6]"), labels(input));
-            assertEquals(Set.of("x", "y"), input.alphabet().getFirst().reads());
-            assertEquals(Set.of("x"), input.alphabet().getFirst().writes());
+            assertEquals(Set.of("x", "y"), input.alphabet().get(0).reads());
+            assertEquals(Set.of("x"), input.alphabet().get(0).writes());
             assertEquals(new Term(BigInteger.TWO, Optional.of("z")), input.alphabet().get(1).terms().get(1));
             assertEquals(new Term(BigInteger.valueOf(-1), Optional.of("z")),
-                    input.alphabet().getLast().terms().get(1));
+                    input.alphabet().get(3).terms().get(1));
         }
     }
 
@@ -52,7 +52,7 @@ class InputParserTest {
                 """);
         assertEquals(List.of("a", "b", "c", "d", "e", "f"), symbols(input));
         assertEquals(List.of("a[1]", "c[2]", "d[3]", "c[4]", "f[5]", "b[6]", "b[7]", "e[8]"), labels(input));
-        assertEquals(Set.of("y", "z"), input.alphabet().getFirst().reads());
+        assertEquals(Set.of("y", "z"), input.alphabet().get(0).reads());
         assertEquals(Set.of("x", "v", "w"), input.alphabet().get(4).reads());
     }
 
@@ -69,9 +69,9 @@ class InputParserTest {
                 w = acdcfbbe
                 """);
         assertEquals(List.of("a[1]", "c[2]", "d[3]", "c[4]", "f[5]", "b[6]", "b[7]", "e[8]"), labels(input));
-        assertEquals(new Term(BigInteger.ONE, Optional.empty()), input.alphabet().getFirst().terms().get(1));
+        assertEquals(new Term(BigInteger.ONE, Optional.empty()), input.alphabet().get(0).terms().get(1));
         assertEquals(Set.of("y", "z"), input.alphabet().get(4).reads());
-        assertEquals(Set.of("v"), input.alphabet().getLast().writes());
+        assertEquals(Set.of("v"), input.alphabet().get(5).writes());
     }
 
     @Test

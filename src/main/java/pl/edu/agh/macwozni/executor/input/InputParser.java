@@ -32,7 +32,7 @@ public final class InputParser {
         if (lines.isEmpty()) {
             throw new InputFormatException("Missing alphabet declaration A.");
         }
-        Set<String> symbols = parseAlphabet(lines.getFirst());
+        Set<String> symbols = parseAlphabet(lines.get(0));
         if (lines.size() == 1) {
             throw new InputFormatException("Missing final line declaring the word w or u.");
         }
@@ -49,7 +49,7 @@ public final class InputParser {
             }
         }
 
-        Line wordLine = lines.getLast();
+        Line wordLine = lines.get(lines.size() - 1);
         var word = WORD.matcher(wordLine.text());
         if (!word.matches()) {
             throw wordLine.error("Expected w = ... or u = ... with no spaces between letters.");

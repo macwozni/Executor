@@ -8,12 +8,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import pl.edu.agh.macwozni.executor.operation.Operation;
 
 class ConcurrentBlockRunnerTest {
@@ -25,13 +30,13 @@ class ConcurrentBlockRunnerTest {
         var release = new CountDownLatch(1);
         var finished = new AtomicInteger();
         Operation action = operation(() -> {
-            assertTrue(Thread.currentThread().isVirtual());
             started.countDown();
             await(release);
             finished.incrementAndGet();
         });
 
-        try (var caller = Executors.newSingleThreadExecutor()) {
+        var caller = Executors.newSingleThreadExecutor();
+        try {
             var result = caller.submit(() -> {
                 runner.runBlock(List.of(action, action));
                 return finished.get();
@@ -43,7 +48,22 @@ class ConcurrentBlockRunnerTest {
                 release.countDown();
             }
             assertEquals(2, result.get(5, TimeUnit.SECONDS));
+        } finally {
+            shutdown(caller);
         }
+    }
+
+    @Test
+    @Timeout(10)
+    void runsEveryOperationOnceWhenTheBlockExceedsThePoolSize() {
+        var completed = ConcurrentHashMap.<Integer>newKeySet();
+        var block = IntStream.range(0, 24)
+                .mapToObj(index -> operation(() -> assertTrue(completed.add(index))))
+                .toList();
+
+        runner.runBlock(block);
+
+        assertEquals(block.size(), completed.size());
     }
 
     @Test
@@ -82,6 +102,54 @@ class ConcurrentBlockRunnerTest {
         } finally {
             Thread.interrupted();
         }
+    }
+
+    @Test
+    void interruptsRunningOperationsAndWaitsForThemToExit() throws Exception {
+        var started = new CountDownLatch(1);
+        var hold = new CountDownLatch(1);
+        var interrupted = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        var owner = new AtomicReference<Thread>();
+        var workerFinished = new AtomicBoolean();
+        Operation action = operation(() -> {
+            started.countDown();
+            try {
+                assertTrue(hold.await(5, TimeUnit.SECONDS), "Operation was not interrupted");
+            } catch (InterruptedException exception) {
+                interrupted.countDown();
+                await(release);
+                Thread.currentThread().interrupt();
+            } finally {
+                workerFinished.set(true);
+            }
+        });
+
+        var caller = Executors.newSingleThreadExecutor();
+        try {
+            var result = caller.submit(() -> {
+                owner.set(Thread.currentThread());
+                var error = assertThrows(IllegalStateException.class, () -> runner.runBlock(List.of(action)));
+                assertTrue(Thread.currentThread().isInterrupted());
+                assertTrue(workerFinished.get());
+                return error;
+            });
+            await(started);
+            owner.get().interrupt();
+            await(interrupted);
+            assertFalse(result.isDone());
+            release.countDown();
+            assertInstanceOf(InterruptedException.class, result.get(5, TimeUnit.SECONDS).getCause());
+        } finally {
+            hold.countDown();
+            release.countDown();
+            shutdown(caller);
+        }
+    }
+
+    private static void shutdown(ExecutorService executor) throws InterruptedException {
+        executor.shutdownNow();
+        assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS), "Caller executor did not terminate");
     }
 
     private static void await(CountDownLatch latch) {
